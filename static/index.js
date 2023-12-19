@@ -1,4 +1,4 @@
-const socket = new WebSocket('ws://localhost:3001');
+const socket = new WebSocket('ws://localhost:3000');
 
 const addMessage = (message) => {
   const el = document.createElement('div');

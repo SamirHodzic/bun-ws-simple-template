@@ -1,11 +1,16 @@
 import { Server, ServerWebSocket } from 'bun';
 
 const APP_PORT = 3000;
-const WS_PORT = 3001;
 
-Bun.serve({
+const messages: any[] = [];
+let users: any[] = [];
+
+const wsServer = Bun.serve({
   port: APP_PORT,
-  fetch(req: Request) {
+  fetch(req: Request, server: Server) {
+    server.upgrade(req, {
+      data: { username: 'user_' + Math.random().toString(16).slice(12) },
+    });
     // TODO: Should be replaced with proper React component and renderToReadableStream with hydration
     if (req.url.indexOf('.js') !== -1) {
       return new Response(Bun.file('./static/index.js'));
@@ -14,22 +19,6 @@ Bun.serve({
     }
 
     return new Response(Bun.file('./static/index.html'));
-  },
-});
-
-const messages: any[] = [];
-let users: any[] = [];
-
-const wsServer = Bun.serve({
-  port: WS_PORT,
-  fetch(req: Request, server: Server) {
-    const success = server.upgrade(req, {
-      data: { username: 'user_' + Math.random().toString(16).slice(12) },
-    });
-
-    return success
-      ? undefined
-      : new Response('Something went wrong :(', { status: 404 });
   },
   websocket: {
     open(ws: ServerWebSocket | any) {
